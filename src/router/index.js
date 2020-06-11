@@ -1,7 +1,10 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
-import Callback from '../views/Callback.vue';
+import Selection from '../views/Selection.vue';
+import User from '../views/user/User.vue';
+import Profile from '../views/user/Profile.vue';
+
 
 Vue.use(VueRouter);
 
@@ -14,7 +17,27 @@ const routes = [
   {
     path: '/callback',
     name: 'callback',
-    component: Callback,
+    component: Selection,
+  },
+  {
+    path: '/user',
+    name: 'user',
+    component: User,
+    children: [
+      {
+        // UserProfile will be rendered inside User's <router-view>
+        // when /user/:id/profile is matched
+        path: '/profile',
+        name: 'profile',
+        component: Profile,
+      },
+      // {
+      //   // UserPosts will be rendered inside User's <router-view>
+      //   // when /user/:id/posts is matched
+      //   path: 'posts',
+      //   component: UserPosts,
+      // },
+    ],
   },
 ];
 
