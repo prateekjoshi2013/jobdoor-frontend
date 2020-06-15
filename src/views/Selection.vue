@@ -13,8 +13,8 @@
   <div class="hero-body">
     <div class="container c-center">
     <div class="buttons">
-  <button class="button is-danger is-rounded" @click="sendToUser">Company</button>
-  <button class="button is-success is-rounded">Candidate</button>
+  <button class="button is-danger is-rounded" @click="sendToCompany" >Company</button>
+  <button class="button is-success is-rounded" @click="sendToUser" >Candidate</button>
 </div>
     </div>
   </div>
@@ -28,7 +28,12 @@ export default {
   methods: {
     sendToUser() {
       this.$auth.handleAuthentication().then(() => {
-        this.$router.push({ name: 'user' });
+        this.$router.push({ path: 'user' });
+      });
+    },
+    sendToCompany() {
+      this.$auth.handleAuthentication().then(() => {
+        this.$router.push({ path: 'company' });
       });
     },
   },

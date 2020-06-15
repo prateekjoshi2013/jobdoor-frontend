@@ -12,14 +12,19 @@
   <div class='column is-one-quarter has-background-danger'>
     <aside class="menu">
       <p class="menu-label c-menu-label">
-        General
+        MENU
       </p>
       <ul class="menu-list">
-        <li><router-link :to="{ name: 'user-profile', params: {isCompany: false } }">
-        Profile
-        </router-link></li>
-        <li><router-link to="/search">Search</router-link></li>
-        <li><router-link to="/applied">Applied</router-link></li>
+        <li>
+        <router-link :to="{ name: 'company-profile', params: {isCompany: true } }">
+            Profile
+        </router-link>
+        </li>
+        <li>
+        <router-link to="/postjob">
+            PostJob
+        </router-link>
+        </li>
         <li><a @click="$auth.logout()">Logout</a></li>
         </ul>
     </aside>
@@ -30,17 +35,8 @@
 </template>
 <script>
 export default {
-  name: 'user',
+  name: 'company',
   methods: {
-    routeToProfile() {
-      this.$router.push({ name: 'profile' });
-    },
-    routeToSearch() {
-      this.$router.push({ name: 'search' });
-    },
-    routeToApplied() {
-      this.$router.push({ name: 'applied' });
-    },
   },
 };
 </script>
