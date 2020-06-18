@@ -44,4 +44,9 @@ export default {
 .router-link-active{
   background-color: yellow;
 }
+.c-menu-label{
+  color: green;
+  font-size: 1.7rem;
+  text-align: left;
+}
 </style>

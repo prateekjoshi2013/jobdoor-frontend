@@ -23,18 +23,27 @@
 </template>
 
 <script>
+import { getUser } from '../dataservice/dataService';
+
 export default {
   name: 'selection',
+  async beforeCreate() {
+    await this.$auth.handleAuthentication();
+    const user = await getUser(this.$auth.token);
+    if (user.userType !== undefined) {
+      if (user.userType === 'company') {
+        this.sendToCompany();
+      } else {
+        this.sendToUser();
+      }
+    }
+  },
   methods: {
     sendToUser() {
-      this.$auth.handleAuthentication().then(() => {
-        this.$router.push({ path: 'user' });
-      });
+      this.$router.push({ path: 'user' });
     },
     sendToCompany() {
-      this.$auth.handleAuthentication().then(() => {
-        this.$router.push({ path: 'company' });
-      });
+      this.$router.push({ path: 'company' });
     },
   },
 };

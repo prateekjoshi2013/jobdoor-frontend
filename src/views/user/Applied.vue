@@ -10,15 +10,18 @@
   <article v-for="post in jobPosts" :key=post.jobId class="media post">
   <figure class="media-left">
     <p class="image is-64x64">
-      <img src="https://bulma.io/images/placeholders/128x128.png">
+      <img :src="user.imageUrl">
     </p>
   </figure>
-  <div class="media-content">
+  <div class="media-content m-content">
     <div class="content c-media-content ">
       <p>
-        <strong>{{post.posterName}}</strong> <small>{{post.locationCode}}</small> <small>31m</small>
+        <strong>
+            {{post.posterName|capital}}
+        </strong>
+        <small>{{`, ${post.locationCode}`}}</small>
         <br>
-        {{post.jobDescription}}
+        {{`Description:  ${post.jobDescription}`}}
       </p>
     </div>
     <nav class="level">
@@ -38,7 +41,7 @@
 </template>
 <script>
 import states from '../../mixins/country-data-mixin';
-import { getAppliedJobPosts } from '../../dataservice/dataService';
+import { getAppliedJobPosts, getUser } from '../../dataservice/dataService';
 
 export default {
   name: 'applied',
@@ -48,12 +51,25 @@ export default {
       jobPosts: [],
       idToken: this.$auth.token,
       userID: this.$auth.user.sub,
+      user: {},
     };
   },
   async created() {
     const posts = await getAppliedJobPosts('candidate', this.idToken);
-    console.log(posts);
     this.jobPosts = posts || [];
+    const user = await getUser(this.idToken);
+    this.user = user;
   },
 };
-</script>>
+</script>
+<style scoped>
+.m-content{
+    color: yellow;
+    border-color: red;
+    border-width: 15rem;
+    padding-bottom: 1rem;
+}
+strong{
+    color: white;
+}
+</style>

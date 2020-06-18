@@ -4,17 +4,20 @@
     <section class="section">
       <div class="container">
         <img :src='this.picture.link' class='image is-128x128'>
-        <div class="control">
-            <button enctype="multipart/form-data" class="button is-link is-light">Upload</button>
+        <span class="icon has-text-warning" @click="enableUpload()">
+            <i class="fas fa-edit" ></i>
+        </span>
+        <div class="control" v-show="this.uploadEnabled">
             <input @change="filesChange($event.target.name, $event.target.files)" type="file"
             accept="image/*" enctype="multipart/form-data"/>
         </div>
         </div>
-        <h1 class="title">NAME</h1>
         <div class="field">
             <label class="label">Name</label>
             <div class="control">
-                <input class="input" :value="this.name" type="text" placeholder="Text input">
+                <input class="input"
+                :value="this.name|capital"
+                type="text" placeholder="Text input">
             </div>
         </div>
 
@@ -31,7 +34,6 @@
           <i class="fas fa-exclamation-triangle"></i>
           </span>
         </div>
-        <p class="help is-danger">This email is invalid</p>
       </div>
 
  <div class="field">
@@ -75,6 +77,15 @@
         <button @click="saveUser()" class="button is-link">Submit</button>
       </div>
     </section>
+    <article v-show="!isAllowedToUpload" class="message is-small is-danger">
+  <div class="message-header">
+    <p>Small message</p>
+    <button class="delete is-small" aria-label="delete"></button>
+  </div>
+  <div class="message-body">
+      SUBMIT OTHER DETAILS FOR THE USER BEFORE UPLOADING AN IMAGE
+  </div>
+</article>
   </div>
 </template>
 <script>
@@ -98,11 +109,12 @@ export default {
       token: this.$auth.token,
       picture: { link: this.$auth.user.picture },
       uploadedFiles: [],
+      uploadEnabled: false,
+      isAllowedToUpload: false,
     };
   },
   async created() {
     const user = await getUser(this.$auth.token);
-    console.log(user);
     if (user.details !== undefined) {
       this.name = user.name;
       this.email = user.email;
@@ -114,34 +126,37 @@ export default {
         this.experience = user.details.experience;
         this.skills = user.details.experience;
       }
+      this.isAllowedToUpload = true;
+    } else {
+      this.isAllowedToUpload = false;
     }
   },
   methods: {
-
+    enableUpload() {
+      if (this.isAllowedToUpload) this.uploadEnabled = !this.uploadEnabled;
+    },
     filesChange(fieldName, fileList) {
       // handle file changes
-      console.log('fileList:', fileList);
       if (!fileList.length) return;
       // append the files to FormData
       this.save(fileList[0]);
     },
     save(formData) {
-      console.log(formData);
       this.picture = '';
       uploadFile(this.token, formData)
-        .then((x) => {
-          console.log('string ->', x);
-          this.picture = { link: 'https://jobdoor-images-dev.s3.amazonaws.com/google-oauth2%7C111882108338369558515' };
+        .then(() => {
+          getUser(this.$auth.token).then((user) => {
+            this.picture = { link: user.imageUrl };
+            this.uploadEnabled = false;
+          });
         })
-
         .catch((err) => {
           this.uploadError = err.response;
         });
     },
-    saveUser() {
-      console.log(this.isCompany);
+    async saveUser() {
       if (!this.isCompany) {
-        saveUser({
+        await saveUser({
           locationCode: this.locationCode,
           experience: this.experience,
           skills: this.skills,
@@ -154,16 +169,10 @@ export default {
           userType: 'company',
         }, this.token);
       }
+      this.isAllowedToUpload = true;
     },
   },
 
 
 };
 </script>
-
-
-    // locationCode: string
-    // experience: string
-    // skills: string
-    // description: string
-    // userType:string

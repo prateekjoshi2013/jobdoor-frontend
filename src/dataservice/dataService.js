@@ -103,6 +103,7 @@ export async function getUser(idToken) {
   return reply.json();
 }
 
+
 export async function getAppliedJobPosts(userType, idToken) {
   const url = new URL(`${JOBDOOR_BASE_URL}jobposts`);
   const params = [['userType', userType]];
@@ -117,6 +118,20 @@ export async function getAppliedJobPosts(userType, idToken) {
   return reply.json();
 }
 
+export async function editJobPost(editJobPostReq, idToken) {
+  const url = new URL(`${JOBDOOR_BASE_URL}jobpost/edit`);
+  const reply = await fetch(url, {
+    method: 'PUT',
+    body: JSON.stringify(editJobPostReq),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+  return reply.json();
+}
+
+
 export async function getCandidates(jobId, idToken) {
   const url = new URL(`${JOBDOOR_BASE_URL}candidates`);
   const params = [['postId', jobId]];
@@ -130,6 +145,19 @@ export async function getCandidates(jobId, idToken) {
   });
   return reply.json();
 }
+
+export async function deletePost(jobId, idToken) {
+  const url = new URL(`${JOBDOOR_BASE_URL}jobpost/${jobId}`);
+  const reply = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+  return reply.json();
+}
+
 
 export async function applyForJob(request, idToken) {
   const url = new URL(`${JOBDOOR_BASE_URL}jobpost`);

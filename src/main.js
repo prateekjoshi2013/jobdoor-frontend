@@ -7,9 +7,10 @@ import Vue from 'vue';
 import auth from '@/auth';
 import App from './App.vue';
 import router from './router';
-
+import capital from './common/capitalize';
 
 Vue.use(auth);
+Vue.filter('capital', capital);
 
 Vue.config.productionTip = false;
 

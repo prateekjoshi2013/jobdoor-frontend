@@ -12,7 +12,7 @@
   <div class='column is-one-quarter has-background-danger'>
     <aside class="menu">
       <p class="menu-label c-menu-label">
-        General
+        MENU
       </p>
       <ul class="menu-list">
         <li><router-link :to="{ name: 'user-profile', params: {isCompany: false } }">
@@ -47,5 +47,10 @@ export default {
 <style scoped>
 .router-link-active{
   background-color: yellow;
+}
+.c-menu-label{
+  color: green;
+  font-size: 1.7rem;
+  text-align: left;
 }
 </style>

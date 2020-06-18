@@ -39,28 +39,30 @@
         </article>
       </div>
     </div>
-    <div class="content">
+    <div class="content m-content">
       <article v-for="post in jobPosts" :key="post.jobId" class="media post">
         <figure class="media-left">
           <p class="image is-64x64">
-            <img src="https://bulma.io/images/placeholders/128x128.png" />
+            <img :src="user.imageUrl" />
           </p>
         </figure>
         <div class="media-content">
           <div class="content c-media-content">
             <p>
-              <strong>{{post.posterName}}</strong>
-              <small>{{post.locationCode}}</small>
-              <small>31m</small>
-              <br />
+              <strong>{{post.posterName| capital}}</strong>
+              <small>{{`, ${post.locationCode}`}}</small>
+              <br/>
               {{post.jobDescription}}
             </p>
           </div>
           <nav class="level">
             <div class="level-left">
               <div class="level-item field"></div>
-              <div class="level-item">
-                <a class="button is-danger">Delete</a>
+                <div class="level-item">
+                <a class="button is-danger" @click="editPost(post)">Edit</a>
+              </div>
+               <div class="level-item">
+                <a class="button is-danger" @click="deleteJobPost(post.jobId)">Delete</a>
               </div>
               <div class="level-item">
                 <a class="button is-danger" @click="getApplicants(post.jobId)">Applicants</a>
@@ -70,45 +72,60 @@
         </div>
       </article>
     </div>
-    <div :class="{'modal':true , 'is-active': modal}">
+    <div :class="{'modal':true , 'is-active': applicantModal}">
       <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
-          <p class="modal-card-title">Modal title</p>
-          <button class="delete" @click="toggleModal" aria-label="close"></button>
+          <p class="modal-card-title">Applicants</p>
+          <button class="delete" @click="toggleApplicantModal" aria-label="close"></button>
         </header>
         <section class="modal-card-body">
               <div class="content">
       <article v-for="applicant in applicants" :key="applicant.userId" class="media post">
         <figure class="media-left">
           <p class="image is-64x64">
-            <img src="https://bulma.io/images/placeholders/128x128.png" />
+            <img :src="applicant.imageUrl" />
           </p>
         </figure>
         <div class="media-content">
           <div class="content c-media-content">
             <p>
-              <strong>{{applicant.name}}</strong>
-              <small>{{applicant.locationCode}}</small>
-              <small>31m</small>
+              <strong style='color: black'>{{applicant.name| capital}}</strong>
+              <small>{{`, ${applicant.locationCode}`}}</small>
               <br />
-              {{applicant.skills}}
-              {{applicant.experience}}
+              Skills: {{`  ${applicant.details.skills}`}}
+              <br />
+              Experience: {{`  ${applicant.details.experience}`}}
             </p>
           </div>
           <nav class="level">
             <div class="level-left">
               <div class="level-item field"></div>
-              <div class="level-item">
-                <a class="button is-success">Select</a>
-              </div>
-              <div class="level-item">
-                <a class="button is-danger">Reject</a>
-              </div>
             </div>
           </nav>
         </div>
       </article>
+    </div>
+        </section>
+        <footer class="modal-card-foot"></footer>
+      </div>
+    </div>
+        <div :class="{'modal':true , 'is-active': editModal}">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Edit</p>
+          <button class="delete" @click="toggleEditModal(edit)" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+              <div class="content">
+                      <div  class="field">
+        <label class="label">Description</label>
+        <div class="control">
+          <textarea class="textarea" placeholder="Textarea" v-model="edit.jobDescription">
+          </textarea>
+        </div>
+      </div>
     </div>
         </section>
         <footer class="modal-card-foot"></footer>
@@ -122,6 +139,9 @@ import {
   getAppliedJobPosts,
   savePost,
   getCandidates,
+  getUser,
+  editJobPost,
+  deletePost,
 } from '../../dataservice/dataService';
 
 export default {
@@ -132,43 +152,72 @@ export default {
       locationCode: '',
       description: '',
       idToken: this.$auth.token,
-      modal: false,
+      applicantModal: false,
       applicants: [],
+      user: {},
+      editModal: false,
+      edit: {},
     };
   },
-  created() {
+  async created() {
     this.refreshList();
     this.modal = false;
-    console.log(this.idToken);
+    this.user = await getUser(this.idToken);
   },
   methods: {
     async refreshList() {
       const posts = await getAppliedJobPosts('company', this.idToken);
-      console.log(posts);
       this.jobPosts = posts || [];
     },
+    async editPost(post) {
+      this.edit = post;
+      this.editModal = true;
+    },
     async createJobPost() {
-      const newPost = await savePost(
+      await savePost(
         {
           locationCode: this.locationCode,
           jobDescription: this.description,
         },
         this.idToken,
       );
-      console.log(newPost);
       await this.refreshList();
     },
 
     async getApplicants(jobId) {
       const applicants = await getCandidates(jobId, this.idToken);
       this.applicants = applicants || [];
-      this.modal = true;
+      this.applicantModal = true;
+    },
+    async getJobPost(jobId) {
+      const applicants = await getCandidates(jobId, this.idToken);
+      this.applicants = applicants || [];
+      this.applicantModal = true;
     },
 
-    toggleModal() {
-      this.modal = false;
+    toggleApplicantModal() {
+      this.applicantModal = false;
       this.applicants = [];
+    },
+    async deleteJobPost(jobId) {
+      await deletePost(jobId, this.idToken);
+      this.refreshList();
+    },
+    async toggleEditModal(post) {
+      await editJobPost(post, this.idToken);
+      this.editModal = false;
+      this.edit = {};
     },
   },
 };
 </script>
+<style scoped>
+.m-content{
+    color: yellow;
+    border-color: red;
+    border-width: 15rem;
+}
+strong{
+    color: white;
+}
+</style>
